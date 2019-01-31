@@ -16,10 +16,11 @@
     data: function () {
       return {
         dropzoneOptions: {
-          url: 'https://httpbin.org/post',
-          thumbnailWidth: 150,
-          maxFilesize: 0.5,
-          headers: {"My-Awesome-Header": "header value"}
+          url: 'http://localhost:8888/images',
+          method: 'post',
+          //thumbnailWidth: 150,
+          //maxFilesize: 0.5,
+          //headers: {"My-Awesome-Header": "header value"}
         }
       }
     }
