@@ -1,5 +1,5 @@
 <template>
-  <div class="hello">
+  <div class="uploader">
     <vue-dropzone ref="myVueDropzone" id="dropzone" :options="dropzoneOptions"
                   v-on:vdropzone-sending="sendingEvent"
                   v-on:vdropzone-removed-file="removeEvent"
@@ -13,7 +13,7 @@
   import axios from "axios";
 
   export default {
-    name: 'HelloWorld',
+    name: 'Uploader',
     components: {
       vueDropzone: vue2Dropzone
     },
