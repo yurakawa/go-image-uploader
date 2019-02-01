@@ -1,6 +1,8 @@
 <template>
   <div class="hello">
-    <vue-dropzone ref="myVueDropzone" id="dropzone" :options="dropzoneOptions"></vue-dropzone>
+    <vue-dropzone ref="myVueDropzone" id="dropzone" :options="dropzoneOptions"
+                  v-on:vdropzone-sending="sendingEvent"
+    ></vue-dropzone>
   </div>
 </template>
 
@@ -18,10 +20,13 @@
         dropzoneOptions: {
           url: 'http://localhost:8888/images',
           method: 'post',
-          //thumbnailWidth: 150,
-          //maxFilesize: 0.5,
-          //headers: {"My-Awesome-Header": "header value"}
+          addRemoveLinks: 'true'
         }
+      }
+    },
+    methods: {
+      sendingEvent: function (file, xhr, formData) {
+        formData.append('uuid', file.upload.uuid)
       }
     }
   }
