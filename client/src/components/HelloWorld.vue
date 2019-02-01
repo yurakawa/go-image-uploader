@@ -26,6 +26,22 @@
         }
       }
     },
+    mounted () {
+      axios.get('http://localhost:8888/images').then(res => {
+        res.data.forEach(res => {
+          // filename 所得
+          let filename = res.path.replace('http://localhost:8888/', '')
+          // uuid
+          let id = filename.replace('.png', '')
+          // fileオブジェクト作成
+          var file = {size: res.size, name: filename, type: "image/png", upload: {uuid: id}}
+          // コードからformに画像データをセット
+          this.$refs.myVueDropzone.manuallyAddFile(file, res.path)
+        })
+      }).catch(err => {
+        console.error(err)
+      })
+    },
     methods: {
       sendingEvent: function (file, xhr, formData) {
         formData.append('uuid', file.upload.uuid)

@@ -1,6 +1,7 @@
  yarn install
 ## start
-docker-compose up -d
+// docker-compose up -d
+docker-compose up --build -d
 docker-compose down
 
-curl localhost:8888
+curl 127.0.0.1:8888
