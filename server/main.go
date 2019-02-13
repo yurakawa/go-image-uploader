@@ -2,9 +2,11 @@ package main
 
 import (
 	"fmt"
+	_ "github.com/go-sql-driver/mysql"
 	"github.com/gin-gonic/contrib/static"
 	"github.com/jinzhu/gorm"
 	"github.com/yurakawa/go-image-uploader/server/config"
+	"github.com/yurakawa/go-image-uploader/server/model"
 	"github.com/yurakawa/go-image-uploader/server/handler"
 
 	"github.com/gin-contrib/cors"
@@ -22,6 +24,7 @@ func main() {
 	}
 
 	defer config.DB.Close()
+	config.DB.AutoMigrate(&model.File{})
 
 	r := gin.Default()
 
