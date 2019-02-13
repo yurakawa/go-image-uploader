@@ -3,6 +3,7 @@ package handler
 import (
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -33,7 +34,6 @@ func dirwalk(dir string) (files []File, err error) {
 }
 
 func List(c *gin.Context) {
-	// TODO: ファイル名の表示がUUIDになるため、元ファイル名を保持する(重複を拒否する or DBなどのデータストアを使う)
 	files, err := dirwalk("./images")
 	if err != nil {
 		fmt.Println(err)
@@ -47,12 +47,16 @@ func Upload(c *gin.Context) {
 	form, _ := c.MultipartForm()
 	files := form.File["file"]
 
-	uuid := c.PostForm("uuid")
-
+	id := uuid.New()
+	sid := id.String()
 
 	for _, file := range files {
+
+		pos := strings.LastIndex(file.Filename, ".")
+		path := fmt.Sprintf("%s%s", sid, file.Filename[pos:])
+
 		// TODO: 拡張子を取得する
-		err := c.SaveUploadedFile(file, "images/" + uuid + ".png")
+		err := c.SaveUploadedFile(file, "images/" + path)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"Message": err.Error()})
 		}
@@ -61,12 +65,13 @@ func Upload(c *gin.Context) {
 }
 
 func Delete(c *gin.Context) {
-	uuid := c.Param("uuid")
-	err := os.Remove(fmt.Sprintf("images/%s.png", uuid))
+	path := c.Param("path")
+
+	err := os.Remove(fmt.Sprintf("images/%s", path))
 	if err != nil {
 		fmt.Println(err.Error())
 		c.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()} )
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"message": fmt.Sprintf("id: %s is deleted", uuid)})
+	c.JSON(http.StatusOK, gin.H{"message": fmt.Sprintf("id: %s is deleted", path)})
 }
