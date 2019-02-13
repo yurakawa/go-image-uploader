@@ -65,7 +65,7 @@ func Upload(c *gin.Context) {
 }
 
 func Delete(c *gin.Context) {
-	path := c.Param("path")
+	path := c.Param("uuid")
 
 	err := os.Remove(fmt.Sprintf("images/%s", path))
 	if err != nil {
