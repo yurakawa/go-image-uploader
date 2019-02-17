@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
+	"github.com/yurakawa/go-image-uploader/server/model"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -33,14 +34,24 @@ func dirwalk(dir string) (files []File, err error) {
 	return
 }
 
+
 func List(c *gin.Context) {
-	files, err := dirwalk("./images")
+	var files []model.File
+	err := model.GetAllFile(&files)
+
+	var f []model.File
+	for _, file := range files {
+		file.Path =  "http://localhost:8888/" + file.Path
+		f = append(f, file)
+	}
+
+	// files, err := dirwalk("./images")
 	if err != nil {
 		fmt.Println(err)
 		c.JSON(http.StatusNotFound, gin.H{"message":err.Error()})
 		return
 	}
-	c.JSON(http.StatusOK, files)
+	c.JSON(http.StatusOK, f)
 }
 
 func Upload(c *gin.Context) {
@@ -52,11 +63,21 @@ func Upload(c *gin.Context) {
 
 	for _, file := range files {
 
+
 		pos := strings.LastIndex(file.Filename, ".")
 		path := fmt.Sprintf("%s%s", sid, file.Filename[pos:])
 
-		// TODO: 拡張子を取得する
 		err := c.SaveUploadedFile(file, "images/" + path)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"Message": err.Error()})
+		}
+
+		f := model.File{
+			Name: file.Filename,
+			Path : path,
+			Size: file.Size,
+		}
+		err = model.AddNewFile(&f)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"Message": err.Error()})
 		}
@@ -67,9 +88,14 @@ func Upload(c *gin.Context) {
 func Delete(c *gin.Context) {
 	path := c.Param("uuid")
 
-	err := os.Remove(fmt.Sprintf("images/%s", path))
+	err := model.DeleteFile(path)
 	if err != nil {
-		fmt.Println(err.Error())
+		c.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()} )
+		return
+	}
+
+	err = os.Remove(fmt.Sprintf("images/%s", path))
+	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()} )
 		return
 	}
